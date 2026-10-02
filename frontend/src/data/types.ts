@@ -36,3 +36,58 @@ export type OverviewResult = {
   cards: { label: string; value: number }[]
   modules: { name: string; created: number; pending: number; abnormal: number }[]
 }
+
+// ---- 历史回放校验 ----
+
+export type SnapshotInfo = {
+  version: number
+  source: string
+  moduleCount: number
+  rowCount: number
+}
+
+export type ReplayModuleResult = {
+  key: string
+  name: string
+  restored: number
+  pending: number
+  abnormal: number
+  liveCreated: number
+  livePending: number
+  liveAbnormal: number
+  pageEntry: boolean
+  ok: boolean
+  note: string
+}
+
+export type ReplayBatchStatus = 'running' | 'interrupted' | 'failed' | 'completed'
+
+export type ReplayBatch = {
+  batchNo: string
+  status: ReplayBatchStatus
+  snapshotVersion: number
+  startedAt: string
+  updatedAt: string
+  verified: string[]
+  results: ReplayModuleResult[]
+  error: string
+}
+
+export type ReplayLastSuccess = {
+  batchNo: string
+  completedAt: string
+  modules: number
+}
+
+export type LedgerEntry = {
+  id: number
+  batchNo: string
+  moduleKey: string
+  moduleName: string
+  result: string
+  restored: number
+  pending: number
+  abnormal: number
+  checkedAt: string
+  note: string
+}

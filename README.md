@@ -69,3 +69,19 @@ npm run build
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
 - 想回到初始数据：清掉浏览器里 `forest-fire-patrol:entries` 这一项，或调用 `resetModule(模块)`。
+
+## 历史回放校验（本地开发）
+
+运营概览页底部有一套历史回放校验，逻辑在 `frontend/src/api/replay-service.ts`：
+
+- 读取浏览器存储快照（`forest-fire-patrol:entries-snapshot`，没有时退回当前
+  `forest-fire-patrol:entries`）；旧版 v1 快照按字段映射（编号/状态/待处理/异常）回填成当前结构。
+- 回填后的数据只在隔离空间（纯内存）里恢复业务模块、异常量和待处理数，并逐一核对页面入口，
+  全程不写 `forest-fire-patrol:entries`，现有总览不受影响。
+- 回放中断（点「中断回放」或离开页面）时批次号与进度保留在
+  `forest-fire-patrol:replay-batch`，继续时从未验证的模块接着走；重复回放不会新增示例数据。
+- 任一步骤失败（如快照带着已下线模块、页面入口缺失）只记录到批次里，不覆盖现有总览。
+- 全部通过后往各模块处置台账（`forest-fire-patrol:ledger`）各写一条核对结果，
+  同一批次同一模块只入一条；原模块数据保留供追溯。最近一次通过记录在
+  `forest-fire-patrol:replay-last`。
+- 「生成旧版快照」按当前数据造一份 v1 快照用于验证回填；「含已下线模块」版本用于演示失败路径。
